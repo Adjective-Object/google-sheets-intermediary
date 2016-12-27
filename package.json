@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "node-fetch": "^1.6.3"
   },
   "name": "lamina",
   "version": "0.1.0",
