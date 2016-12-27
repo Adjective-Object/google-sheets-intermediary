@@ -2,10 +2,14 @@
 // import 'babel-polyfill';
 const fs                   = require('fs');
 const fetch                = require('node-fetch');
+
+// Node-specific backend modules
+const NodeCliAuthBackend   = require('./lib/node-backend/node-cli-auth-request-backend');
+const NodeFsStorageBackend = require ('./lib/node-backend/node-fs-storage-backend');
+
+// generic behavior classes
 const SpreadsheetBudget    = require('./lib/spreadsheet-interface');
-const NodeCliAuthBackend   = require('./lib/node-cli-auth-request-backend');
 const AccessTokenManager   = require('./lib/access-token-manager');
-const NodeFsStorageBackend = require ('./lib/node-fs-storage-backend');
 const SheetsApi            = require('./lib/sheets-api')
 const AuthAccessManager    = require('./lib/auth-access-manager');
 
@@ -13,6 +17,7 @@ const AuthAccessManager    = require('./lib/auth-access-manager');
 const CLIENT_SECRET_PATH = './client_secret.json';
 const clientSecret = JSON.parse(fs.readFileSync(CLIENT_SECRET_PATH));
 
+// Construct the components needed to talk to the sheets API
 const authAccessManager = new AuthAccessManager({
     clientSecret: clientSecret.installed,
     authBackend: new NodeCliAuthBackend(),
@@ -32,11 +37,15 @@ const sheet = new SpreadsheetBudget({
     api: api
 });
 
+
+// create some state object
 let state = {
     income: [],
     expenses: []
 }
 
+// authenticate with the api and then
+// push an pull a state from it
 authAccessManager.auth()
     .then(() => {
         return sheet.fetchState();
