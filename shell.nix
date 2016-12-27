@@ -9,7 +9,7 @@ in with pkgs; let
 
 in {
     devEnv = stdenv.mkDerivation {
-        name = "quick-budget";
+        name = "lamina";
         buildInputs = devDependencies ++ dependencies;
     };
 }
