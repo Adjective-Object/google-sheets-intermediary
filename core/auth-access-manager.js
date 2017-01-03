@@ -19,19 +19,6 @@ module.exports = class AuthAccessManager {
         }
     }
 
-    getAuthUrl() {
-        const baseAuthUrl = 'https://accounts.google.com/o/oauth2/auth'
-        const authorizationUri = baseAuthUrl + '?' +
-            querystring.stringify({
-                access_type: 'offline',
-                scope: 'https://www.googleapis.com/auth/spreadsheets',
-                response_type: 'code',
-                client_id: this.clientSecret.client_id,
-                redirect_uri: 'urn:ietf:wg:oauth:2.0:oob',
-            })
-        return authorizationUri;
-    }
-
     auth() {
       // request the auth token and save it in the storage backend
       return this.storageBackend.read()
@@ -39,7 +26,7 @@ module.exports = class AuthAccessManager {
         // fetch a new auth code and use it to get a new
         // access token / refresh code
         .catch(() => 
-            this.authBackend.auth(this.getAuthUrl())
+            this.authBackend.auth()
                 .then((authCode) => this.accessRequest.exchange(
                     this.clientSecret,
                     authCode

@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+  },
+  "name": "lamina-react-native",
+  "version": "0.1.0",
+  "description": "the react-native backend for lamina",
+  "main": "main.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adjective-Object/google-sheets-intermediary.git"
+  },
+  "keywords": [
+    "sheets",
+    "google",
+    "api",
+    "library"
+  ],
+  "author": "adjective",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Adjective-Object/google-sheets-intermediary/issues"
+  },
+  "homepage": "https://github.com/Adjective-Object/google-sheets-intermediary#readme"
+}

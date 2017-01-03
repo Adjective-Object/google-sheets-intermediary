@@ -1,9 +1,9 @@
 {
   "dependencies": {
   },
-  "name": "lamina",
+  "name": "lamina-node",
   "version": "0.1.0",
-  "description": "simple library for interfacing with google sheets",
+  "description": "the node backend for lamina",
   "main": "main.js",
   "devDependencies": {},
   "scripts": {
