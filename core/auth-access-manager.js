@@ -1,4 +1,4 @@
-const querystring = require('querystring');
+const querystring = require('./querystring');
 
 module.exports = class AuthAccessManager {
 
@@ -21,35 +21,36 @@ module.exports = class AuthAccessManager {
 
     auth() {
       // request the auth token and save it in the storage backend
+
       return this.storageBackend.read()
-        // on failure to read refresh_token from disk,
-        // fetch a new auth code and use it to get a new
-        // access token / refresh code
-        .catch(() => 
-            this.authBackend.auth()
-                .then((authCode) => this.accessRequest.exchange(
-                    this.clientSecret,
-                    authCode
-                ))
-                .then((res) => ({
-                    access_token: res.access_token,
-                    refresh_token: res.refresh_token,
-                    expires_at: new Date().getTime() + res.expires_in
-                }))
-        )
 
         // when the access token is out of date, refresh it
         .then((state) => {
+            console.log(`read state ${JSON.stringify(state,0,2)}`)
 
             this.accessToken = state.access_token;
             this.refreshToken = state.refresh_token;
 
-            if (state.expires_at > new Date().getTime() + 500) {
+            if (state.expires_at < new Date().getTime() + 500) {
+                console.log("refreshing token loaded from state");
                 return this.__refreshAccessToken(
                     state.refresh_token
                 )
             }
         })
+
+        // on failure to read refresh_token from disk,
+        // fetch a new auth code and use it to get a new
+        // access token / refresh code
+        .catch(() => 
+            this.authBackend.auth(this.clientSecret)
+                .then((authCode) => this.accessRequest.exchange(
+                    this.clientSecret,
+                    authCode
+                ))
+                .then(this.__storeAndScheduleRefresh.bind(this))
+        )
+
     }
 
     // use the backend to refresh access and store on disk,
@@ -86,8 +87,8 @@ module.exports = class AuthAccessManager {
 
         // store to disk for getting new tokens in the future
         return this.storageBackend.write({
-            access_token: res.access_token,
-            refresh_token: res.refresh_token,
+            access_token: this.accessToken,
+            refresh_token: this.refreshToken,
             expires_at: new Date().getTime() + res.expires_in,
         })
     }

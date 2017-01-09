@@ -1,5 +1,4 @@
-let fetch = require('node-fetch');
-let querystring = require('querystring');
+let querystring = require('./querystring');
 
 class ApiAccessError extends Error {
     constructor(url, options, message) {
@@ -13,8 +12,11 @@ module.exports = class SheetsApi {
 
     constructor(opts) {
         this.accessManager = opts.accessManager || null;
-        if (!this.accessManager) {
-            throw new Error('access manager not set');
+        this.fetch = opts.fetch || null
+
+        if (!this.accessManager ||
+            !this.fetch) {
+            throw new Error('access manager or fetch not set');
         }
     }
 
@@ -47,7 +49,7 @@ module.exports = class SheetsApi {
         console.log(options)
 
         let responseStatus = null;
-        return fetch(url +  query, options)
+        return this.fetch(url +  query, options)
             .then((response) => {
                 responseStatus = response.status;
                 return response.text();
@@ -66,6 +68,10 @@ module.exports = class SheetsApi {
             {method: method},
             opts
         );
+    }
+
+    get(opts) {
+        return this.__spreadsheetAction('GET', '', opts)
     }
 
     batchUpdate(opts) {

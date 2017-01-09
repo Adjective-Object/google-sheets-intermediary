@@ -1,4 +1,4 @@
-const querystring = require('querystring');
+const querystring = require('./querystring');
 
 class AuthorizationCodeExchangeError extends Error {
     constructor(response) {
@@ -18,7 +18,7 @@ class AccessCodeRefreshError extends Error {
 module.exports = class AccessTokenManager {
 
     constructor(opts) {
-        this.fetch = opts.fetchBackend || null;
+        this.fetch = opts.fetch || null;
 
         if (!this.fetch) {
             throw new Error("AccessTokenManager constructed w/o required args")
@@ -33,6 +33,9 @@ module.exports = class AccessTokenManager {
                 client_secret: clientSecret.client_secret,
                 grant_type: 'authorization_code',
                 redirect_uri: clientSecret.redirect_uris[0],
+                prompt: 'consent',
+                access_type: 'offline',
+                approval_prompt: 'force'
             });
         return this.fetch(url, {
             method: 'POST',
@@ -48,8 +51,7 @@ module.exports = class AccessTokenManager {
         })
         .then(text => {
             // TODO check the structure of the response
-            console.log(text)
-
+            console.log("exchanged one time code:", text)
             return JSON.parse(text);
         })
      
@@ -84,7 +86,7 @@ module.exports = class AccessTokenManager {
                 throw err
             }))
         .then((text) => {
-            console.log(text)
+            console.log("refreshed token", text)
             // TODO handle failure
             // console.log(result)
 

@@ -6,14 +6,29 @@ export default class ReactNativeAsyncStorageBackend {
     }
 
     read() {
-        return AsyncStorage.getItem(this.fpath);
+        return new Promise((resolve, reject) => {
+            AsyncStorage.getItem("@fitness-app:" + this.fpath,
+                (error, item) => {
+                    console.log('read from storage', item);
+                    return error || (item === null)
+                        ? reject(error)
+                        : resolve(JSON.parse(item));
+                }
+            )
+        });
     }
 
     write(obj) {
-        return AsyncStorage.getItem(
-            this.fpath,
-            JSON.stringify(obj)
-        );
+        return new Promise((resolve, reject) => {
+            console.log('storing', obj);
+            AsyncStorage.setItem(
+                "@fitness-app:" + this.fpath,
+                JSON.stringify(obj),
+                (error) => error
+                    ? reject(error)
+                    : resolve(error)
+            );
+        });
     }
 
 }
