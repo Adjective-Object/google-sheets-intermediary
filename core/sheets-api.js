@@ -7,7 +7,7 @@ class ApiAccessError extends Error {
         JSON.stringify(options, null, 2) +
         "\n" +
         "response: " +
-        message,
+        message
     );
   }
 }
@@ -65,7 +65,7 @@ module.exports = class SheetsApi {
       "https://sheets.googleapis.com/v4/spreadsheets/" + opts.spreadsheetId +
         action,
       { method: method },
-      opts,
+      opts
     );
   }
 

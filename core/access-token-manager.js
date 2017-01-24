@@ -19,7 +19,7 @@ module.exports = class AccessTokenManager {
     this.fetch = opts.fetch || null;
 
     if (!this.fetch) {
-      throw new Error("AccessTokenManager constructed w/o required args");
+      throw new Error("AccessTokenManager constructed w/o required argument fetch");
     }
   }
 
@@ -79,7 +79,7 @@ module.exports = class AccessTokenManager {
         err => err.response.text().then(text => {
           console.error(text);
           throw err;
-        }),
+        })
       )
       .then(text => {
         console.log("refreshed token", text);

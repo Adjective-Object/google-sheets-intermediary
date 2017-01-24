@@ -41,9 +41,9 @@ module.exports = class AuthAccessManager {
             .auth(this.clientSecret)
             .then(
               authCode =>
-                this.accessRequest.exchange(this.clientSecret, authCode),
+                this.accessRequest.exchange(this.clientSecret, authCode)
             )
-            .then(this.__storeAndScheduleRefresh.bind(this)),
+            .then(this.__storeAndScheduleRefresh.bind(this))
       );
   }
 
@@ -72,7 +72,7 @@ module.exports = class AuthAccessManager {
     // in half the expiration time, try to refresh the access token
     this.accessTokenRefreshTimeout = setTimeout(
       () => this.__refreshAccessToken.bind(this, res.refresh_token),
-      res.expires_in / 2,
+      res.expires_in / 2
     );
 
     this.accessToken = res.access_token || this.accessToken;
