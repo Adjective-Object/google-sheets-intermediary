@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/Adjective-Object/google-sheets-intermediary/issues"
   },
-  "homepage": "https://github.com/Adjective-Object/google-sheets-intermediary#readme"
+  "homepage": "https://github.com/Adjective-Object/google-sheets-intermediary#readme",
+  "peerDependencies": {
+    "react-native-google-signin": "^0.8.1"
+  }
 }
