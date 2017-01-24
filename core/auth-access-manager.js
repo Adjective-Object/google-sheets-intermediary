@@ -1,4 +1,4 @@
-const querystring = require("./querystring");
+const querystring = require('./querystring');
 
 module.exports = class AuthAccessManager {
   constructor(opts) {
@@ -11,13 +11,13 @@ module.exports = class AuthAccessManager {
     this.refreshToken = null;
 
     if (null === this.clientSecret)
-      throw new Error("AuthAccessManager missing required clientSecret");
+      throw new Error('AuthAccessManager missing required clientSecret');
     if (null === this.authBackend)
-      throw new Error("AuthAccessManager missing required authBackend");
+      throw new Error('AuthAccessManager missing required authBackend');
     if (null === this.accessRequest)
-      throw new Error("AuthAccessManager missing required accessRequest");
+      throw new Error('AuthAccessManager missing required accessRequest');
     if (null === this.storageBackend)
-      throw new Error("AuthAccessManager missing required storageBackend");
+      throw new Error('AuthAccessManager missing required storageBackend');
   }
 
   auth() {
@@ -31,7 +31,7 @@ module.exports = class AuthAccessManager {
         this.refreshToken = state.refresh_token;
 
         if (state.expires_at < new Date().getTime() + 500) {
-          console.log("refreshing token loaded from state");
+          console.log('refreshing token loaded from state');
           return this.__refreshAccessToken(state.refresh_token);
         }
       })
@@ -41,9 +41,9 @@ module.exports = class AuthAccessManager {
             .auth(this.clientSecret)
             .then(
               authCode =>
-                this.accessRequest.exchange(this.clientSecret, authCode)
+                this.accessRequest.exchange(this.clientSecret, authCode),
             )
-            .then(this.__storeAndScheduleRefresh.bind(this))
+            .then(this.__storeAndScheduleRefresh.bind(this)),
       );
   }
 
@@ -62,7 +62,7 @@ module.exports = class AuthAccessManager {
     //     access_token,
     //     expires_in,
     // }
-    console.log("storing and scheduling refresh", res);
+    console.log('storing and scheduling refresh', res);
 
     // disable pending timeout
     if (this.accessTokenRefreshTimeout !== null) {
@@ -72,7 +72,7 @@ module.exports = class AuthAccessManager {
     // in half the expiration time, try to refresh the access token
     this.accessTokenRefreshTimeout = setTimeout(
       () => this.__refreshAccessToken.bind(this, res.refresh_token),
-      res.expires_in / 2
+      res.expires_in / 2,
     );
 
     this.accessToken = res.access_token || this.accessToken;

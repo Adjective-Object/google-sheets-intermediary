@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "lint": "prettier --write --single-quote --flow-parser --trailing-comma core/*.js node/*.js react-native/**.js"
+  },
   "devDependencies": {
     "prettier": "^0.0.7"
   }
