@@ -18,6 +18,7 @@ export default class ReactNativeAuthBackend {
             scopes: [ 'https://www.googleapis.com/auth/spreadsheets' ],
             webClientId: clientSecret.client_id,
             offlineAccess: true,
+            forceConsentPrompt: true,
           }),
         )
         .then(GoogleSignin.currentUserAsync.bind(GoogleSignin))

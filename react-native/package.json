@@ -1,9 +1,8 @@
 {
   "dependencies": {
-    "react-native-google-signin": "^0.8.1"
   },
   "name": "lamina-react-native",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "the react-native backend for lamina",
   "main": "main.js",
   "devDependencies": {},
