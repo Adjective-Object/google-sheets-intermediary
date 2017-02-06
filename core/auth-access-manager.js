@@ -22,29 +22,43 @@ module.exports = class AuthAccessManager {
 
   auth() {
     // request the auth token and save it in the storage backend
-    return this.storageBackend
+    const authWithGoogle = () =>
+      this.authBackend
+        .auth(this.clientSecret)
+        .then(
+          authCode => this.accessRequest.exchange(this.clientSecret, authCode),
+        )
+        .then(this.__store.bind(this))
+        .then(this.__scheduleRefresh.bind(this));
+
+    const read = this.storageBackend
       .read()
+      .catch(() => null)
       .then(state => {
-        console.log(`read state ${JSON.stringify(state, 0, 2)}`);
+        if (state == null) {
+          // if the read fails (there is no stored state), re-auth
+          return authWithGoogle();
+        } else {
+          console.log(`read state ${JSON.stringify(state, 0, 2)}`);
 
-        this.accessToken = state.access_token;
-        this.refreshToken = state.refresh_token;
+          this.accessToken = state.access_token;
+          this.refreshToken = state.refresh_token;
 
-        if (state.expires_at < new Date().getTime() + 500) {
-          console.log('refreshing token loaded from state');
-          return this.__refreshAccessToken(state.refresh_token);
+          // on reading a bad state, re-auth
+          if (!this.refreshToken || !this.accessToken) {
+            console.log(`read bad state, re-authenticating`);
+            return authWithGoogle();
+          }
+
+          // on reading an old state, re-auth
+          if (state.expires_at < new Date().getTime() + 500) {
+            console.log('refreshing token loaded from state');
+            return this.__refreshAccessToken(state.refresh_token);
+          }
         }
-      })
-      .catch(
-        () =>
-          this.authBackend
-            .auth(this.clientSecret)
-            .then(
-              authCode =>
-                this.accessRequest.exchange(this.clientSecret, authCode),
-            )
-            .then(this.__storeAndScheduleRefresh.bind(this)),
-      );
+      });
+
+    return read;
   }
 
   // use the backend to refresh access and store on disk,
@@ -52,38 +66,47 @@ module.exports = class AuthAccessManager {
   __refreshAccessToken(refreshToken) {
     return this.accessRequest
       .refresh(this.clientSecret, refreshToken)
-      .then(this.__storeAndScheduleRefresh.bind(this));
+      .then(this.__store.bind(this))
+      .then(this.__scheduleRefresh.bind(this));
   }
 
-  __storeAndScheduleRefresh(res) {
+  __store(res) {
     // res an object of form
     // {
     //     refresh_token,
     //     access_token,
     //     expires_in,
     // }
-    console.log('storing and scheduling refresh', res);
+    console.log('saving state from', res);
 
+    this.accessToken = res.access_token || this.accessToken;
+    this.refreshToken = res.refresh_token || this.refreshToken;
+
+    // store to disk for getting new tokens in the future
+    let toStore = {
+      access_token: this.accessToken,
+      refresh_token: this.refreshToken,
+      expires_at: new Date().getTime() + res.expires_in,
+    };
+
+    return this.storageBackend.write(toStore).then(() => res);
+  }
+
+  __scheduleRefresh(res) {
     // disable pending timeout
+    console.log('scheduling refresh');
+
     if (this.accessTokenRefreshTimeout !== null) {
       clearTimeout(this.accessTokenRefreshTimeout);
     }
 
     // in half the expiration time, try to refresh the access token
     this.accessTokenRefreshTimeout = setTimeout(
-      () => this.__refreshAccessToken.bind(this, res.refresh_token),
+      () => this.__refreshAccessToken.bind(this, res.refreshToken),
       res.expires_in / 2,
     );
 
-    this.accessToken = res.access_token || this.accessToken;
-    this.refreshToken = res.refresh_token || this.refreshToken;
-
-    // store to disk for getting new tokens in the future
-    return this.storageBackend.write({
-      access_token: this.accessToken,
-      refresh_token: this.refreshToken,
-      expires_at: new Date().getTime() + res.expires_in,
-    });
+    return res;
   }
 
   getAccessToken() {
