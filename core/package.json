@@ -2,7 +2,7 @@
   "dependencies": {
   },
   "name": "lamina-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "simple dependency-free and platform-independent library for interfacing with google sheets",
   "main": "main.js",
   "devDependencies": {},
